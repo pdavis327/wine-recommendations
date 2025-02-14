@@ -4,6 +4,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_ollama.llms import OllamaLLM
 from operator import itemgetter
 import os
+from typing import TypedDict
 
 from dotenv import load_dotenv
 
@@ -42,6 +43,7 @@ chat_history_template = ChatPromptTemplate.from_messages(
 
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
+
 
 
 def init_llm():
