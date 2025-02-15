@@ -134,7 +134,7 @@ display(Image(graph.get_graph().draw_mermaid_png()))
 
 # %%
 for step in graph.stream(
-    {"question": "what wines are the most expensive?"}, stream_mode="updates"
+    {"question": "What island reds are there?"}, stream_mode="updates"
 ):
     print(step)
 
