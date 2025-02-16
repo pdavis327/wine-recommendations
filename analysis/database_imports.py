@@ -16,6 +16,10 @@
 
 # %%
 import psycopg2
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # %%
 conn_string = "host='localhost' dbname='winedb' user='petedavis'"
@@ -28,10 +32,8 @@ cur = conn.cursor()
 conn.rollback()
 
 # %%
-,country,description,designation,points,price_dollars,province,region,title,variety,winery
-
-# %%
-cur.execute('''CREATE TABLE winemag (
+cur.execute(
+    """CREATE TABLE IF NOT EXISTS winemag (
     country VARCHAR(100),
     description TEXT,
     designation VARCHAR(255),
@@ -39,24 +41,24 @@ cur.execute('''CREATE TABLE winemag (
     price_dollars NUMERIC(10, 2),
     province VARCHAR(100),
     region VARCHAR(100),
-    "title" VARCHAR(255),
+    title VARCHAR(255),
     variety VARCHAR(100),
-    winery VARCHAR(255)
-);''')
+    winery VARCHAR(255));
+    """
+)
 
 # %%
-sql_copy = '''COPY winemag(country, description, designation, points, price_dollars,\
-    province, region, title, variety, winery) 
-FROM '/Users/petedavis/davis/repos/wine-recommendations/assets/winemag_processed.csv' 
-DELIMITER ',' 
-CSV HEADER;
-'''
+sql_copy = f"""COPY winemag
+FROM '{os.getenv('WINE_DATA_PROCESSED')}'
+DELIMITER ','
+CSV HEADER QUOTE '"';
+"""
 
 # %%
 cur.execute(sql_copy)
 
 # %%
-test = ''' select * from winemag'''
+test = """ select * from winemag"""
 
 # %%
 cur.execute(test)
@@ -71,6 +73,3 @@ conn.commit()
 cur.close()
 
 # %%
-
-
-
