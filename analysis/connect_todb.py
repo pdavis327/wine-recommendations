@@ -9,7 +9,7 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.11.2
 #   kernelspec:
-#     display_name: hflc
+#     display_name: python_recommender
 #     language: python
 #     name: python3
 # ---
@@ -18,15 +18,15 @@
 from langchain_community.utilities import SQLDatabase
 import sys
 import getpass
+from dotenv import load_dotenv
 import os
 sys.path.append(os.path.abspath(".."))  
-
-from util import query
+load_dotenv()
 # %load_ext autoreload
 # %autoreload 2
 
 # %%
-DATABASE_URI = "postgresql+psycopg2://petedavis@localhost:5432/wine-dataset"
+DATABASE_URI = os.getenv("POSTGRES_URI")
 
 # %%
 db = SQLDatabase.from_uri(DATABASE_URI)
@@ -48,7 +48,6 @@ class State(TypedDict):
     query: str
     result: str
     answer: str
-
 
 # %%
 from langchain.chat_models import init_chat_model
@@ -86,7 +85,6 @@ def write_query(state: State):
     result = structured_llm.invoke(prompt)
     return {"query": result["query"]}
 
-
 # %%
 write_query({"question": "Which wines are red?"})
 
@@ -99,10 +97,8 @@ def execute_query(state: State):
     execute_query_tool = QuerySQLDatabaseTool(db=db)
     return {"result": execute_query_tool.invoke(state["query"])}
 
-
 # %%
 execute_query({'query': "SELECT designation, winery, price_dollars FROM winemag WHERE variety = 'Portuguese Red' OR variety LIKE '%Red%' OR designation LIKE '%Red%'"})
-
 
 # %%
 def generate_answer(state: State):
@@ -116,7 +112,6 @@ def generate_answer(state: State):
     )
     response = llm.invoke(prompt)
     return {"answer": response.content}
-
 
 # %%
 from langgraph.graph import START, StateGraph
@@ -134,8 +129,11 @@ display(Image(graph.get_graph().draw_mermaid_png()))
 
 # %%
 for step in graph.stream(
-    {"question": "What island reds are there?"}, stream_mode="updates"
+    {"question": "what wines are the most expensive?"}, stream_mode="updates"
 ):
     print(step)
 
 # %%
+
+
+
